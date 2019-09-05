@@ -83,21 +83,23 @@ function CityAvg(city, country, citiesPollution, dateFrom) {
 function displayCities(cities) {
     cities.sort((a, b) => b.pm10 - a.pm10);
     cities.splice(10);
-    // cityDest = getCityDesc(cities);
-    console.log(cities.length);
-    citiesList.innerHTML = '';
-    for(let i = 0; i < 10; i++){
-        citiesList.innerHTML += `
-        <li>
-            City: ${cities[i].city}, PM10: ${cities[i].pm10}, PM2.5: ${cities[i].pm25}</br>
-            </li>
-            `;
-            // Description: ${cityDest[i]}
-    }
+    getCityDesc(cities)
+        .then(descriptions => {
+            citiesList.innerHTML = '';
+            for(let i = 0; i < 10; i++){
+                citiesList.innerHTML += `
+                <li>
+                    City: ${cities[i].city}, PM10: ${cities[i].pm10}, PM2.5: ${cities[i].pm25}</br>
+                    Description: ${descriptions[i]}
+                    </li>
+                    `;
+            }
+        });
 }
 
 function getCityDesc(cities) {
-    fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=description&titles=${cities.join('|')}&redirects=1`)
+    const titles = cities.map(cit => cit.city).join('|');
+    return new Promise ((resolve, reject) => resolve(fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=description&titles=${titles}&redirects=1`)
         .then(response => response.json())
         .then(json => {
             const pages = json.query.pages;
@@ -106,8 +108,8 @@ function getCityDesc(cities) {
             for(let p in pages){
                 citiesDescription.push(pages[p].description);
             }
-            console.log(citiesDescription);
-    })
+            return citiesDescription;
+    })))
 }
 
 // 'Poland',
