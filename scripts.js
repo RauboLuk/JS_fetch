@@ -24,8 +24,9 @@ function handleInput(e) {
     // Don't fetch if country isnt on the list
     if( !countries.includes(country) || e.keyCode === 16) return;
     else {
-        CityAvg('Poznań', 'PL', citiesPollution).then(te => console.log(te));
-        getCities('PL').then(data => console.log(data));
+        // TODO remove consolelogs
+        // CityAvg('Poznań', 'PL', citiesPollution).then(te => console.log(te));
+        // getCities('PL').then(data => console.log(data));
         getCities(country).then(cit => {
             Promise.all(cit.map(obj =>
                 CityAvg(obj.city, country, citiesPollution)))
@@ -33,8 +34,8 @@ function handleInput(e) {
                     citiesPollution = [...data];
                     displayCities(citiesPollution);
                 })
-        })
-    }
+            })
+        }
 }
 
 function getCities(country) {
@@ -73,21 +74,41 @@ function CityAvg(city, country, citiesPollution, dateFrom) {
         return({
             city,
             pm10: Math.round(pm10/pm10c),
-            pm25: Math.round(pm25/pm25c)
+            pm25: Math.round(pm25/pm25c),
         })
     })))
 }
 
+//TODO add sorting by pm25 or pm10
 function displayCities(cities) {
     cities.sort((a, b) => b.pm10 - a.pm10);
+    cities.splice(10);
+    // cityDest = getCityDesc(cities);
+    console.log(cities.length);
     citiesList.innerHTML = '';
     for(let i = 0; i < 10; i++){
         citiesList.innerHTML += `
-        <li>City: ${cities[i].city}, PM10: ${cities[i].pm10}, PM2.5: ${cities[i].pm25}</li>
-        `;
+        <li>
+            City: ${cities[i].city}, PM10: ${cities[i].pm10}, PM2.5: ${cities[i].pm25}</br>
+            </li>
+            `;
+            // Description: ${cityDest[i]}
     }
 }
 
+function getCityDesc(cities) {
+    fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=description&titles=${cities.join('|')}&redirects=1`)
+        .then(response => response.json())
+        .then(json => {
+            const pages = json.query.pages;
+            const citiesDescription = []
+            // What if pages.lenght > 1?
+            for(let p in pages){
+                citiesDescription.push(pages[p].description);
+            }
+            console.log(citiesDescription);
+    })
+}
 
 // 'Poland',
 // 'Germany',
