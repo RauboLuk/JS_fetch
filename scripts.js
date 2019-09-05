@@ -19,28 +19,26 @@ function handleInput(e) {
     // Get input value
     // TODO change to event.value?
     const country = input.value;
-    const citiesPollution = [];
+    let citiesPollution = [];
+    citiesPollution.splice(0, citiesPollution.length - 1);
     // Don't fetch if country isnt on the list
     if( !countries.includes(country) || e.keyCode === 16) return;
     else {
-        getCities(country)
-        .then(cities => {
-            cities.map(element => CityAvg(element.city, country, citiesPollution));
+        CityAvg('Poznań', 'PL', citiesPollution).then(te => console.log(te));
+        getCities('PL').then(data => console.log(data));
+        getCities(country).then(cit => {
+            Promise.all(cit.map(obj =>
+                CityAvg(obj.city, country, citiesPollution)))
+                .then(data => {
+                    citiesPollution = [...data];
+                    displayCities(citiesPollution);
+                })
         })
     }
-    setTimeout(() => {
-        console.log(citiesPollution.sort((a, b) => b.pm10 - a.pm10));
-        citiesList.innerHTML = '';
-        for(let i = 0; i < 10; i++){
-            citiesList.innerHTML += `
-            <li>City: ${citiesPollution[i].city}, PM10: ${citiesPollution[i].pm10}, PM2.5: ${citiesPollution[i].pm25}</li>
-            `;
-        }
-    }, 5000);
 }
 
 function getCities(country) {
-    return new Promise((resolve, rejesct) => resolve(fetch(`https://api.openaq.org/v1/cities?country=${country}&limit=10000`)
+    return new Promise((resolve, reject) => resolve(fetch(`https://api.openaq.org/v1/cities?country=${country}&limit=10000`)
     .then(response => response.json())
     .then(json => json.results)));
     // TODO catch ? reject
@@ -53,7 +51,7 @@ function CityAvg(city, country, citiesPollution, dateFrom) {
         today.setMonth(today.getMonth() - 1);
         dateFrom = `${today.getUTCFullYear()}-${today.getUTCMonth()}-${today.getUTCDate()}`;
     }
-    fetch(`https://api.openaq.org/v1/measurements?country=${country}&city=${city}&parameter[]=pm10&parameter[]=pm25&date_from[]=${dateFrom}&limit=10000`)
+    return new Promise ((resolve, reject) => resolve(fetch(`https://api.openaq.org/v1/measurements?country=${country}&city=${city}&parameter[]=pm10&parameter[]=pm25&date_from[]=${dateFrom}&limit=10000`)
     .then(response => response.json())
     .then(json => {
         if(json.meta.found === 0) return;
@@ -72,12 +70,22 @@ function CityAvg(city, country, citiesPollution, dateFrom) {
             }
         })
         //TODO handle no data pm10 || pm25
-        citiesPollution.push({
+        return({
             city,
             pm10: Math.round(pm10/pm10c),
             pm25: Math.round(pm25/pm25c)
         })
-    })
+    })))
+}
+
+function displayCities(cities) {
+    cities.sort((a, b) => b.pm10 - a.pm10);
+    citiesList.innerHTML = '';
+    for(let i = 0; i < 10; i++){
+        citiesList.innerHTML += `
+        <li>City: ${cities[i].city}, PM10: ${cities[i].pm10}, PM2.5: ${cities[i].pm25}</li>
+        `;
+    }
 }
 
 
