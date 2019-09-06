@@ -10,12 +10,15 @@ const countries = [
     'FR'
 ];
 
+input.value = JSON.parse(sessionStorage.getItem('value')) || '';
+
 // input.addEventListener("keyup", handleInput);
 submit.addEventListener('click', handleInput);
 
 
 function handleInput(e) {
     e.preventDefault();
+    sessionStorage.setItem('value', JSON.stringify(input.value));
     // Get input value
     // TODO change to event.value?
     const country = input.value;
