@@ -86,28 +86,39 @@ function CityAvg(city, country, citiesPollution, dateFrom) {
 function displayCities(cities) {
     cities.sort((a, b) => b.pm10 - a.pm10);
     cities.splice(10);
-    getCityDesc(cities)
-        .then(descriptions => {
+    citiesList.innerHTML = '';
+    const test = [];
+    Promise.all(cities.map((city, i) => {
+        getCityDesc(city.city).then(description => {
+            // console.log(`${i}`, description);
+            // console.log(test);
+            return {
+                nr: i ,
+                html: 
+            `
+            <tr>
+                <th scope="row">${i+1}</th>
+                <td>${city.city}</td>
+                <td>${city.pm10 || 'No data'}</td>
+                <td>${city.pm25 || 'No data'}</td>
+                <td>${description[0]}</td>
+            </tr>
+            `};
+        }).then(x => {
             citiesList.innerHTML = '';
-            for(let i = 0; i < 10; i++){
-                citiesList.innerHTML += `
-                <li>
-                    City: ${cities[i].city}, PM10: ${cities[i].pm10}, PM2.5: ${cities[i].pm25}</br>
-                    Description: ${descriptions[i]}
-                    </li>
-                    `;
-            }
+            test.push(x);
+            test.sort((a, b) => a['nr'] - b['nr'])
+            test.map(z => citiesList.innerHTML += z.html);
         });
+    }));
 }
 
-function getCityDesc(cities) {
-    const titles = cities.map(cit => cit.city).join('|');
-    return new Promise ((resolve, reject) => resolve(fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=description&titles=${titles}&redirects=1`)
+function getCityDesc(citiyName) {
+    return new Promise ((resolve, reject) => resolve(fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=description&titles=${citiyName}&redirects=1`)
         .then(response => response.json())
         .then(json => {
             const pages = json.query.pages;
             const citiesDescription = []
-            // What if pages.lenght > 1?
             for(let p in pages){
                 citiesDescription.push(pages[p].description);
             }
