@@ -14,16 +14,12 @@ const countries = {
 
 input.value = JSON.parse(sessionStorage.getItem('value')) || '';
 
-// input.addEventListener("keyup", handleInput);
 submit.addEventListener('click', handleInput);
 submit.countries = countries;
-
 
 function handleInput(e) {
     e.preventDefault();
     sessionStorage.setItem('value', JSON.stringify(input.value));
-    // Get input value
-    // TODO change to event.value?
     const country = countries[input.value];
     let citiesPollution = [];
     // Don't fetch if country isnt on the list
@@ -34,12 +30,9 @@ function handleInput(e) {
     else {
         alert.hidden = true;
         spinner.hidden = false;
-        // TODO remove consolelogs
-        // CityAvg('Poznań', 'PL', citiesPollution).then(te => console.log(te));
-        // getCities('PL').then(data => console.log(data));
         getCities(country).then(cit => {
             Promise.all(cit.map(obj =>
-                CityAvg(obj.city, country, citiesPollution)))
+                CityAvg(obj.city, country)))
                 .then(data => {
                     citiesPollution = [...data];
                     displayCities(citiesPollution);
@@ -50,20 +43,18 @@ function handleInput(e) {
 }
 
 function getCities(country) {
-    return new Promise((resolve, reject) => resolve(fetch(`https://api.openaq.org/v1/cities?country=${country}&limit=10000`)
+    return new Promise(resolve => resolve(fetch(`https://api.openaq.org/v1/cities?country=${country}&limit=10000`)
     .then(response => response.json())
     .then(json => json.results)));
-    // TODO catch ? reject
 }
 
-function CityAvg(city, country, citiesPollution, dateFrom) {
+function CityAvg(city, country, dateFrom) {
     if(!dateFrom) {
         const today = new Date();
-        // TODO change variable name
         today.setMonth(today.getMonth() - 1);
         dateFrom = `${today.getUTCFullYear()}-${today.getUTCMonth()}-${today.getUTCDate()}`;
     }
-    return new Promise ((resolve, reject) => resolve(fetch(`https://api.openaq.org/v1/measurements?country=${country}&city=${city}&parameter[]=pm10&parameter[]=pm25&date_from[]=${dateFrom}&limit=10000`)
+    return new Promise (resolve => resolve(fetch(`https://api.openaq.org/v1/measurements?country=${country}&city=${city}&parameter[]=pm10&parameter[]=pm25&date_from[]=${dateFrom}&limit=10000`)
     .then(response => response.json())
     .then(json => {
         if(json.meta.found === 0) return;
@@ -81,7 +72,6 @@ function CityAvg(city, country, citiesPollution, dateFrom) {
                 pm25c++;
             }
         })
-        //TODO handle no data pm10 || pm25
         return({
             city,
             pm10: Math.round(pm10/pm10c),
@@ -90,7 +80,6 @@ function CityAvg(city, country, citiesPollution, dateFrom) {
     })))
 }
 
-//TODO add sorting by pm25 or pm10
 function displayCities(cities) {
     cities.sort((a, b) => b.pm10 - a.pm10);
     cities.splice(10);
@@ -98,6 +87,7 @@ function displayCities(cities) {
     const test = [];
     Promise.all(cities.map((city, i) => {
         getCityDesc(city.city).then(description => {
+            description[0].includes('Disambiguation') ? description[0] = 'No description provided' : null;
             return {
                 nr: i ,
                 html: 
@@ -107,11 +97,10 @@ function displayCities(cities) {
                 <td>${city.city}</td>
                 <td>${city.pm10 || 'No data'}</td>
                 <td>${city.pm25 || 'No data'}</td>
-                <td>Show description</td>
             </tr>
             <tr>
-                <td colspan="3">
-                    <div id="accordion${i}" class="collapse">${description[0]}</div>
+                <td colspan="4">
+                    <div id="accordion${i}" class="collapse">Description: ${description[0]}</div>
                 </td>
             </tr>
             `};
@@ -125,7 +114,7 @@ function displayCities(cities) {
 }
 
 function getCityDesc(citiyName) {
-    return new Promise ((resolve, reject) => resolve(fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=description&titles=${citiyName}&redirects=1`)
+    return new Promise (resolve => resolve(fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=description&titles=${citiyName}&redirects=1`)
         .then(response => response.json())
         .then(json => {
             const pages = json.query.pages;

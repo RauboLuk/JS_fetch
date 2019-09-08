@@ -7,18 +7,11 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
 
     <title>JSBootstrap_fetch</title>
   </head>
   <body>
     <div class="container">
-        <!-- <form class="select-country">
-            <label for="country">Country</label>
-            <input class="" id="country" autocomplete="on" placeholder="Enter country...">
-            <button id="test" type="button" class="btn btn-primary">Run</button>
-        </form> -->
-
       <form id="select-country" style="text-align: center; margin: 1vh">
         <label for="country">Choose country:</label>
         <input type="text" name="city" list="countries" id="country" autocomplete="off" style="margin-bottom: 1vh">
@@ -39,7 +32,6 @@
         </div>
       </div>
       
-
       <table class="table table-hover table-striped table-dark">
           <thead>
             <tr>
@@ -47,16 +39,11 @@
               <th scope="col">City</th>
               <th scope="col">Avg PM10</th>
               <th scope="col">Avg PM2.5</th>
-              <th scope="col">Desc</th>
             </tr>
           </thead>
           <tbody id="cities">
           </tbody>
         </table>
-
-
-
-
     </div>
 
     <!-- Optional JavaScript -->
