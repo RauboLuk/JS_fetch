@@ -2,6 +2,8 @@ const form = document.querySelector('#select-country');
 const input = form.querySelector('#country');
 const submit = form.querySelector('#Button');
 const citiesList = document.querySelector('#cities');
+const alert = document.querySelector('.alert');
+const spinner = document.querySelector('.spinner-border');
 
 const countries = {
     'Poland': 'PL',
@@ -24,10 +26,14 @@ function handleInput(e) {
     // TODO change to event.value?
     const country = countries[input.value];
     let citiesPollution = [];
-    citiesPollution.splice(0, citiesPollution.length - 1);
     // Don't fetch if country isnt on the list
-    if( !Object.values(countries).includes(country) || e.keyCode === 16) return;
+    if( !Object.values(countries).includes(country) || e.keyCode === 16) {
+        alert.hidden ? alert.hidden = false : null;
+        return;
+    }
     else {
+        alert.hidden = true;
+        spinner.hidden = false;
         // TODO remove consolelogs
         // CityAvg('Poznań', 'PL', citiesPollution).then(te => console.log(te));
         // getCities('PL').then(data => console.log(data));
@@ -37,6 +43,7 @@ function handleInput(e) {
                 .then(data => {
                     citiesPollution = [...data];
                     displayCities(citiesPollution);
+                    spinner.hidden = true
                 })
             })
         }
@@ -91,18 +98,21 @@ function displayCities(cities) {
     const test = [];
     Promise.all(cities.map((city, i) => {
         getCityDesc(city.city).then(description => {
-            // console.log(`${i}`, description);
-            // console.log(test);
             return {
                 nr: i ,
                 html: 
             `
-            <tr>
+            <tr data-toggle="collapse" data-target="#accordion${i}" class="clickable">
                 <th scope="row">${i+1}</th>
                 <td>${city.city}</td>
                 <td>${city.pm10 || 'No data'}</td>
                 <td>${city.pm25 || 'No data'}</td>
-                <td>${description[0]}</td>
+                <td>Show description</td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div id="accordion${i}" class="collapse">${description[0]}</div>
+                </td>
             </tr>
             `};
         }).then(x => {
