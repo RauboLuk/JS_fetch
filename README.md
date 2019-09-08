@@ -8,4 +8,4 @@ Small script that fetch and render data.
 
 ## Contact
 #### Developer
-* Linkedid: in/łukasz-r-996893143
+* LinkedIn: in/łukasz-r-996893143
