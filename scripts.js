@@ -1,19 +1,20 @@
-const form = document.querySelector('.select-country');
+const form = document.querySelector('#select-country');
 const input = form.querySelector('#country');
-const submit = form.querySelector('#test');
+const submit = form.querySelector('#Button');
 const citiesList = document.querySelector('#cities');
 
-const countries = [
-    'PL',
-    'DE',
-    'ES',
-    'FR'
-];
+const countries = {
+    'Poland': 'PL',
+    'Germany': 'DE',
+    'Spain': 'ES',
+    'France': 'FR'
+};
 
 input.value = JSON.parse(sessionStorage.getItem('value')) || '';
 
 // input.addEventListener("keyup", handleInput);
 submit.addEventListener('click', handleInput);
+submit.countries = countries;
 
 
 function handleInput(e) {
@@ -21,11 +22,11 @@ function handleInput(e) {
     sessionStorage.setItem('value', JSON.stringify(input.value));
     // Get input value
     // TODO change to event.value?
-    const country = input.value;
+    const country = countries[input.value];
     let citiesPollution = [];
     citiesPollution.splice(0, citiesPollution.length - 1);
     // Don't fetch if country isnt on the list
-    if( !countries.includes(country) || e.keyCode === 16) return;
+    if( !Object.values(countries).includes(country) || e.keyCode === 16) return;
     else {
         // TODO remove consolelogs
         // CityAvg('Poznań', 'PL', citiesPollution).then(te => console.log(te));
@@ -125,9 +126,3 @@ function getCityDesc(citiyName) {
             return citiesDescription;
     })))
 }
-
-// 'Poland',
-// 'Germany',
-// 'Spain',
-// 'France'
-// /w/api.php?action=query&format=json&prop=description&titles=Warszawa&redirects=1
