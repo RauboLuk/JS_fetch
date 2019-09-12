@@ -3,7 +3,7 @@ Small script that fetch and render data.
 
 ## Prerequisites
 
-* Web browser that support JavaScript(ES06),
+* Web browser that support JavaScript(ES6),
 * Internet connection
 
 ## Usage
