@@ -1,9 +1,18 @@
 # JS_fetch
 Small script that fetch and render data.
 
+## Prerequisites
+
+* Web browser that support JavaScript(ES06),
+* Internet connection
+
+## Usage
+
+Open `index.html` in your browser.
+
 ## Technology
-* BootStrap
 * JavaScript
+* BootStrap
 * CSS
 
 ## Contact
